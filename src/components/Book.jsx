@@ -5,6 +5,8 @@ const Book = () => {
     phone: '',
     people: ''
   });
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMsg, setPopupMsg] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -16,8 +18,15 @@ const Book = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Booking data:', formData);
-    // Handle form submission here
+    // Basic validation
+    if (!formData.phone.match(/^\d{10,}$/) || !formData.people || parseInt(formData.people) < 1) {
+      setPopupMsg('Please enter a valid phone number and number of people.');
+      setShowPopup(true);
+      return;
+    }
+    setPopupMsg(`Your table for ${formData.people} ${parseInt(formData.people) === 1 ? 'person' : 'people'} is confirmed!`);
+    setShowPopup(true);
+    setFormData({ phone: '', people: '' });
   };
 
   return (
@@ -29,7 +38,7 @@ const Book = () => {
           Let's book a table <br />
           For you
         </h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <div className="input-box">
             <i className='bx bx-phone-call'></i>
             <input 
@@ -38,6 +47,7 @@ const Book = () => {
               placeholder="Your Number" 
               value={formData.phone}
               onChange={handleInputChange}
+              required
             />
           </div>
           <div className="input-box">
@@ -48,12 +58,22 @@ const Book = () => {
               placeholder="People" 
               value={formData.people}
               onChange={handleInputChange}
+              min="1"
+              required
             />
           </div>
           <button type="submit" className="book-btn">Book Table</button>
         </form>
         <p>We will contact you to confirm the booking</p>
       </div>
+      {showPopup && (
+        <div className="book-popup-overlay" onClick={() => setShowPopup(false)}>
+          <div className="book-popup" onClick={e => e.stopPropagation()}>
+            <span>{popupMsg}</span>
+            <button className="close-modal-btn" onClick={() => setShowPopup(false)}>OK</button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
